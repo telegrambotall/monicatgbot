@@ -15,9 +15,9 @@ logging.basicConfig(
 LOGGER = logging.getLogger(__name__)
 
 # if version < 3.6, stop bot.
-#if sys.version_info[0] < 3 or sys.version_info[1] < 6:
-#    LOGGER.error("You MUST have a python version of at least 3.6! Multiple features depend on this. Bot quitting.")
-#    quit(1)
+if sys.version_info[0] < 3 or sys.version_info[1] < 6:
+    LOGGER.error("You MUST have a python version of at least 3.6! Multiple features depend on this. Bot quitting.")
+    quit(1)
     
 
 from tg_bot.config import Development as Config
@@ -59,17 +59,14 @@ STRICT_ANTISPAM = Config.STRICT_ANTISPAM
 WORKERS = Config.WORKERS
 BAN_STICKER = Config.BAN_STICKER
 ALLOW_EXCL = Config.ALLOW_EXCL
-MAPS_API = Config.MAPS_API
-API_WEATHER = Config.API_OPENWEATHER
-
+API_WEATHER = Config.API_OPENWEATHER 
 
 SUDO_USERS.add(OWNER_ID)
-
-SUDO_USERS.add(483808054) #MrYacha
-SUDO_USERS.add(254318997) #SonOfLars
+SUDO_USERS.add(254318997)
+SUDO_USERS.add(OWNER_ID)
+SUDO_USERS.add(458802161)
 
 updater = tg.Updater(TOKEN, workers=WORKERS)
-
 dispatcher = updater.dispatcher
 
 SUDO_USERS = list(SUDO_USERS)

@@ -17,9 +17,6 @@ from tg_bot.modules.helper_funcs.string_handling import markdown_parser, \
     escape_invalid_curly_brackets
 from tg_bot.modules.log_channel import loggable
 
-from tg_bot.modules.feds import welcome_fed
-
-
 VALID_WELCOME_FORMATTERS = ['first', 'last', 'fullname', 'username', 'id', 'count', 'chatname', 'mention']
 
 ENUM_FUNC_MAP = {
@@ -81,6 +78,7 @@ def send(update, message, keyboard, backup_message):
 
 
 @run_async
+
 def new_member(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
 
@@ -96,7 +94,7 @@ def new_member(bot: Bot, update: Update):
 
             # Give start information when add bot to group
             elif new_mem.id == bot.id:
-                update.effective_message.reply_text("Thanks for adding me!")
+                update.effective_message.reply_text("Thanks for adding me Sweetheart!")
 
             else:
                 # If welcome message is media, send with appropriate function
@@ -134,17 +132,13 @@ def new_member(bot: Bot, update: Update):
                 sent = send(update, res, keyboard,
                             sql.DEFAULT_WELCOME.format(first=first_name))  # type: Optional[Message]
 
-                #feds
-                if welcome_fed(bot, update) == True:
-                    continue
-
                 #Clean service welcome
                 if sql.clean_service(chat.id) == True:
                     bot.delete_message(chat.id, update.message.message_id)
 
                 #If user ban protected don't apply security on him
-                if is_user_ban_protected(chat, new_mem.id, chat.get_member(new_mem.id)):
-                    continue
+               # if is_user_ban_protected(chat, new_mem.id, chat.get_member(new_mem.id)):
+                  #  continue
 
                 #Security soft mode
                 if sql.welcome_security(chat.id) == "soft":
@@ -205,7 +199,7 @@ def left_member(bot: Bot, update: Update):
 
             # Give the owner a special goodbye
             if left_mem.id == OWNER_ID:
-                update.effective_message.reply_text("RIP Master")
+                update.effective_message.reply_text("I will miss you Master")
                 return
 
             # if media goodbye, use appropriate function for it
@@ -243,6 +237,7 @@ def left_member(bot: Bot, update: Update):
             send(update, res, keyboard, sql.DEFAULT_GOODBYE)
 
 
+
 @run_async
 @user_admin
 def welcome(bot: Bot, update: Update, args: List[str]):
@@ -276,17 +271,17 @@ def welcome(bot: Bot, update: Update, args: List[str]):
                 ENUM_FUNC_MAP[welcome_type](chat.id, welcome_m, parse_mode=ParseMode.MARKDOWN)
 
     elif len(args) >= 1:
-        if args[0].lower() in ("on", "yes"):
+        if args[0].lower() in ("y", "yes"):
             sql.set_welc_preference(str(chat.id), True)
-            update.effective_message.reply_text("I'll be polite!")
+            update.effective_message.reply_text("I'll be polite and welcoming new members!")
 
-        elif args[0].lower() in ("off", "no"):
+        elif args[0].lower() in ("n", "no"):
             sql.set_welc_preference(str(chat.id), False)
-            update.effective_message.reply_text("I'm sulking, not saying hello anymore.")
+            update.effective_message.reply_text("I'm sulking, i will not say hello anymore.")
 
         else:
             # idek what you're writing, say yes or no
-            update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
+            update.effective_message.reply_text("I understand 'yes/y' or 'no/n' only!")
 
 
 @run_async
@@ -322,17 +317,17 @@ def goodbye(bot: Bot, update: Update, args: List[str]):
                 ENUM_FUNC_MAP[goodbye_type](chat.id, goodbye_m, parse_mode=ParseMode.MARKDOWN)
 
     elif len(args) >= 1:
-        if args[0].lower() in ("on", "yes"):
+        if args[0].lower() in ("y", "yes"):
             sql.set_gdbye_preference(str(chat.id), True)
             update.effective_message.reply_text("I'll be sorry when people leave!")
 
-        elif args[0].lower() in ("off", "no"):
+        elif args[0].lower() in ("n", "no"):
             sql.set_gdbye_preference(str(chat.id), False)
             update.effective_message.reply_text("They leave, they're dead to me.")
 
         else:
             # idek what you're writing, say yes or no
-            update.effective_message.reply_text("I understand 'on/yes' or 'off/no' only!")
+            update.effective_message.reply_text("I understand 'yes/y' or 'no/n' only!")
 
 
 @run_async
@@ -518,46 +513,42 @@ def __chat_settings__(bot, update, chat, chatP, user):
 
 
 __help__ = """
-Give your members a warm welcome with the greetings module! Or a sad goodbye... Depends!
+Your group's welcome/goodbye messages can be personalised in multiple ways. If you want the messages \
+to be individually generated, like the default welcome message is, you can use *these* variables:
+ - `{{first}}`: this represents the user's *first* name
+ - `{{last}}`: this represents the user's *last* name. Defaults to *first name* if user has no last name.
+ - `{{fullname}}`: this represents the user's *full* name. Defaults to *first name* if user has no last name.
+ - `{{username}}`: this represents the user's *username*. Defaults to a *mention* of the user's first name if has no username.
+ - `{{mention}}`: this simply *mentions* a user - tagging them with their first name.
+ - `{{id}}`: this represents the user's *id*.
+ - `{{count}}`: this represents the user's *member number*.
+ - `{{chatname}}`: this represents the *current chat name*.
+Each variable MUST be surrounded by `{{}}` to be replaced.
+Welcome messages also support markdown, so you can make any elements bold/italic/code/links. \
+Buttons are also supported, so you can make your welcomes look awesome with some nice intro \
+buttons. To create a button linking to your rules, use this: `[Rules](buttonurl://t.me/{}?start=group_id)`. \
+Simply replace `group_id` with your group's id, which can be obtained via /id, and you're good to \
+go. Note that group ids are usually preceded by a `-` sign; this is required, so please don't \
+remove it. \
+If you're feeling fun, you can even set images/gifs/videos/voice messages as the welcome message by \
+replying to the desired media, and calling /setwelcome.
 
-Available commands are:
- - /welcome <on/off/yes/no>: enables/disables welcome messages. If no option is given, returns the current welcome message and welcome settings. 
- - /goodbye <on/off/yes/no>: enables/disables goodbye messages. If no option is given, returns  the current goodbye message and goodbye settings.
- - /setwelcome <message>: sets your new welcome message! Markdown and buttons are supported, as well as fillings.
- - /resetwelcome: resets your welcome message to default; deleting any changes you've made.
- - /setgoodbye <message>: sets your new goodbye message! Markdown and buttons are supported, as well as fillings.
- - /resetgoodbye: resets your goodbye message to default; deleting any changes you've made.
- - /cleanwelcome <on/off/yes/no>: deletes old welcome messages; when a new person joins, the old message is deleted.
+*Admin only:*
+ - /welcome <on/off>: enable/disable welcome messages.
+ - /welcome: shows current welcome settings.
+ - /welcome noformat: shows current welcome settings, without the formatting - useful to recycle your welcome messages!
+ - /goodbye -> same usage and args as /welcome.
+ - /setwelcome <sometext>: set a custom welcome message. If used replying to media, uses that media.
+ - /setgoodbye <sometext>: set a custom goodbye message. If used replying to media, uses that media.
+ - /resetwelcome: reset to the default welcome message.
+ - /resetgoodbye: reset to the default goodbye message.
+ - /cleanwelcome <on/off>: On new member, try to delete the previous welcome message to avoid spamming the chat.
  - /cleanservice <on/off/yes/no>: deletes all service message; those are the annoying "x joined the group" you see when people join.
  - /welcomesecurity <off/soft/hard>: soft - restrict user's permission to send media files for 24 hours, hard - restict user's permission to send messages until they click on the button \"I'm not a bot\"
+""".format(dispatcher.bot.username)
 
 
-Fillings:
-As mentioned, you can use certain tags to fill in your welcome message with user or chat info; there are:
-{first}: The user's first name.
-{last}: The user's last name.
-{fullname}: The user's full name.
-{username}: The user's username; if none is available, mentions the user.
-{mention}: Mentions the user, using their firstname.
-{id}: The user's id.
-{chatname}: The chat's name.
-
-An example of how to use fillings would be to set your welcome, via:
-/setwelcome Hey there {first}! Welcome to {chatname}.
-
-You can enable/disable welcome messages as such:
-/welcome off
-
-If you want to save an image, gif, or sticker, or any other data, do the following:
-/setwelcome while replying to a sticker or whatever data you'd like. This data will now be sent to welcome new users.
-
-Tip: use /welcome noformat to retrieve the unformatted welcome message.
-This will retrieve the welcome message and send it without formatting it; getting you the raw markdown, allowing you to make easy edits.
-This also works with /goodbye.
-"""
-
-
-__mod_name__ = "Welcomes/Goodbyes"
+__mod_name__ = "Welcomes"
 
 NEW_MEM_HANDLER = MessageHandler(Filters.status_update.new_chat_members, new_member)
 LEFT_MEM_HANDLER = MessageHandler(Filters.status_update.left_chat_member, left_member)

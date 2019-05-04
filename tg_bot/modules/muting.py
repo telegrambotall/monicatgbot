@@ -56,8 +56,8 @@ def mute(bot: Bot, update: Update, args: List[str]) -> str:
             keyboard = []
             reply = tld(chat.id, "{} is muted in {}!").format(mention_html(member.user.id, member.user.first_name), chatD.title)
             message.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
-            return "<b>{}:</b>" \
-                   "\n#MUTE" \
+            return "#MUTE" \
+                   "\n<b>Chat:</b> {}" \
                    "\n<b>Admin:</b> {}" \
                    "\n<b>User:</b> {}".format(html.escape(chatD.title),
                                               mention_html(user.id, user.first_name),
@@ -110,8 +110,8 @@ def unmute(bot: Bot, update: Update, args: List[str]) -> str:
             keyboard = []
             reply = tld(chat.id, "Yep, {} can start talking again in {}!").format(mention_html(member.user.id, member.user.first_name), chatD.title)
             message.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
-            return "<b>{}:</b>" \
-                   "\n#UNMUTE" \
+            return "#UNMUTE" \
+                   "\n<b>Chat:</b> {}" \
                    "\n<b>• Admin:</b> {}" \
                    "\n<b>• User:</b> {}" \
                    "\n<b>• ID:</b> <code>{}</code>".format(html.escape(chatD.title),
@@ -129,7 +129,7 @@ def unmute(bot: Bot, update: Update, args: List[str]) -> str:
 @can_restrict
 @user_admin
 @loggable
-def temp_mute(bot: Bot, update: Update, args: List[str]) -> str:
+def tmute(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
@@ -183,8 +183,8 @@ def temp_mute(bot: Bot, update: Update, args: List[str]) -> str:
     if not mutetime:
         return ""
 
-    log = "<b>{}:</b>" \
-          "\n#TEMP MUTED" \
+    log = "#TMUTE" \
+          "\n<b>Chat:</b> {}" \
           "\n<b>Admin:</b> {}" \
           "\n<b>User:</b> {}" \
           "\n<b>Time:</b> {}".format(html.escape(chat.title), mention_html(user.id, user.first_name),
@@ -254,8 +254,8 @@ def nomedia(bot: Bot, update: Update, args: List[str]) -> str:
             keyboard = []
             reply = tld(chat.id, "{} is restricted from sending media in {}!").format(mention_html(member.user.id, member.user.first_name), chatD.title)
             message.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
-            return "<b>{}:</b>" \
-                   "\n#RESTRICTED" \
+            return "#RESTRICTED" \
+                   "\n<b>Chat:</b> {}"\
                    "\n<b>• Admin:</b> {}" \
                    "\n<b>• User:</b> {}" \
                    "\n<b>• ID:</b> <code>{}</code>".format(html.escape(chatD.title),
@@ -307,8 +307,8 @@ def media(bot: Bot, update: Update, args: List[str]) -> str:
             keyboard = []
             reply = tld(chat.id, "Yep, {} can send media again in {}!").format(mention_html(member.user.id, member.user.first_name), chatD.title)
             message.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
-            return "<b>{}:</b>" \
-                   "\n#UNRESTRICTED" \
+            return "#UNRESTRICTED" \
+                   "\n<b>Chat:</b> {}" \
                    "\n<b>• Admin:</b> {}" \
                    "\n<b>• User:</b> {}" \
                    "\n<b>• ID:</b> <code>{}</code>".format(html.escape(chatD.title),
@@ -379,8 +379,8 @@ def temp_nomedia(bot: Bot, update: Update, args: List[str]) -> str:
     if not mutetime:
         return ""
 
-    log = "<b>{}:</b>" \
-          "\n#TEMP RESTRICTED" \
+    log = "#TEMP RESTRICTED" \
+          "\n<b>Chat:</b> {}" \
           "\n<b>• Admin:</b> {}" \
           "\n<b>• User:</b> {}" \
           "\n<b>• ID:</b> <code>{}</code>" \
@@ -413,12 +413,25 @@ def temp_nomedia(bot: Bot, update: Update, args: List[str]) -> str:
 
     return ""
 
+#__help__ = """
+#*Admin only:*
+# - /mute <userhandle>: silences a user. Can also be used as a reply, muting the replied to user.
+# - /tmute <userhandle> x(m/h/d): mutes a user for x time. (via handle, or reply). m = minutes, h = hours, d = days.
+# - /unmute <userhandle>: unmutes a user. Can also be used as a reply, muting the replied to user.
+# - /restrict <userhandle>: restricts a user from sending stickers, gif, embed links or media. Can also be used as a reply, restrict the replied to user.
+# - /trestrict <userhandle> x(m/h/d): restricts a user for x time. (via handle, or reply). m = minutes, h = hours, d = days.
+# - /unrestrict <userhandle>: unrestricts a user from sending stickers, gif, embed links or media. Can also be used as a reply, restrict the replied to user.
+#"""
+
+
+#__mod_name__ = "Muting & Restricting"
+
 MUTE_HANDLER = CommandHandler("mute", mute, pass_args=True)
 UNMUTE_HANDLER = CommandHandler("unmute", unmute, pass_args=True)
-TEMPMUTE_HANDLER = CommandHandler(["tmute", "tempmute"], temp_mute, pass_args=True)
-TEMP_NOMEDIA_HANDLER = CommandHandler(["trestrict", "temprestrict"], temp_nomedia, pass_args=True, )
-NOMEDIA_HANDLER = CommandHandler(["restrict", "nomedia"], nomedia, pass_args=True,)
-MEDIA_HANDLER = CommandHandler("unrestrict", media, pass_args=True,)
+TEMPMUTE_HANDLER = CommandHandler("tmute", tmute, pass_args=True)
+TEMP_NOMEDIA_HANDLER = CommandHandler(["trestrict", "trs"], temp_nomedia, pass_args=True, )
+NOMEDIA_HANDLER = CommandHandler(["restrict", "rs"], nomedia, pass_args=True,)
+MEDIA_HANDLER = CommandHandler(["unrestrict", "unrs"], media, pass_args=True,)
 
 dispatcher.add_handler(MUTE_HANDLER)
 dispatcher.add_handler(UNMUTE_HANDLER)

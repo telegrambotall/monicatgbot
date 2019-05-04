@@ -1,4 +1,5 @@
 import threading
+import random
 from typing import Union
 
 from sqlalchemy import Column, String, Boolean, UnicodeText, Integer, BigInteger
@@ -6,15 +7,16 @@ from sqlalchemy import Column, String, Boolean, UnicodeText, Integer, BigInteger
 from tg_bot.modules.helper_funcs.msg_types import Types
 from tg_bot.modules.sql import SESSION, BASE
 
-DEFAULT_WELCOME = "Hey {first}, how are you?"
-DEFAULT_GOODBYE = "Nice knowing ya!"
+DEFAULT_WELCOME = random.choice(["I'm glad you joined, {first}!", "Cheers, love! {first}'s here!", "{first} is here to kick butt and chew bubblegum.", "Enjoy your stay,{first}!", "Hey {first}, how are you?!", "Roses are red,voilets are blue, {first} just joined this party with you!"])
+
+DEFAULT_GOODBYE = random.choice(["Nice knowing you dear,{first}!", "bye,bye {first}", "I’ll miss you until we meet again, {first}"])
 
 
 class Welcome(BASE):
     __tablename__ = "welcome_pref"
     chat_id = Column(String(14), primary_key=True)
     should_welcome = Column(Boolean, default=True)
-    should_goodbye = Column(Boolean, default=True)
+    should_goodbye = Column(Boolean, default=False)
 
     custom_welcome = Column(UnicodeText, default=DEFAULT_WELCOME)
     welcome_type = Column(Integer, default=Types.TEXT.value)

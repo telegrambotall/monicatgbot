@@ -2,11 +2,11 @@ import html
 import json
 import random
 import time
-import pyowm
+import pyowm 
+import os
 from pyowm import timeutils, exceptions
 from datetime import datetime
 from typing import Optional, List
-from pythonping import ping as ping3
 
 import requests
 from telegram import Message, Chat, Update, Bot, MessageEntity
@@ -14,12 +14,13 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, run_async, Filters
 from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS, BAN_STICKER, MAPS_API, API_WEATHER
+from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS, BAN_STICKER, API_WEATHER
 from tg_bot.__main__ import GDPR
 from tg_bot.__main__ import STATS, USER_INFO
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.helper_funcs.filters import CustomFilters
+from tg_bot.modules.helper_funcs.chat_status import is_user_admin, user_admin, can_restrict 
 
 from tg_bot.modules.sql.translation import prev_locale
 
@@ -121,7 +122,7 @@ def info(bot: Bot, update: Update, args: List[str]):
     msg = update.effective_message  # type: Optional[Message]
     user_id = extract_user(update.effective_message, args)
     chat = update.effective_chat  # type: Optional[Chat]
-
+    
     if user_id:
         user = bot.get_chat(user_id)
 
@@ -217,7 +218,8 @@ def get_time(bot: Bot, update: Update, args: List[str]):
                 update.message.reply_text(tld(chat.id, "It's {} in {}").format(time_there, location))
 
 
-@run_async
+@run_async 
+@user_admin
 def echo(bot: Bot, update: Update):
     message = update.effective_message
     message.delete()
@@ -241,15 +243,30 @@ def stickerid(bot: Bot, update: Update):
 @run_async
 def getsticker(bot: Bot, update: Update):
     msg = update.effective_message
-    chat_id = update.effective_chat.id
-    if msg.reply_to_message and msg.reply_to_message.sticker:
-        file_id = msg.reply_to_message.sticker.file_id
-        newFile = bot.get_file(file_id)
-        newFile.download('sticker.png')
-        bot.sendDocument(chat_id, document=open('sticker.png', 'rb'))
-        
+    chat_id = update.effective_chat.id 
+    if msg.reply_to_message:
+       if msg.reply_to_message and msg.reply_to_message.sticker:
+            file_id = msg.reply_to_message.sticker.file_id 
+            newFile = bot.get_file(file_id)
+            newFile.download('sticker.png')
+            bot.sendDocument(chat_id, document=open('sticker.png', 'rb'))
+            os.remove("sticker.png")
+       elif msg.reply_to_message.photo:
+            file_id = msg.reply_to_message.photo[-1].file_id
+            newFile = bot.get_file(file_id)
+            newFile.download('sticker.png')
+            bot.sendDocument(chat_id, document=open('sticker.png', 'rb'))
+            os.remove("sticker.png")
+       elif msg.reply_to_message.document:
+            file_id = msg.reply_to_message.document.file_id
+            newFile = bot.get_file(file_id)
+            newFile.download('sticker.png')
+            bot.sendDocument(chat_id, document=open('sticker.png', 'rb'))
+            os.remove("sticker.png") 
+       else:
+           update.effective_message.reply_text(tld(chat_id, "Unknown format sticker/photo/document are the supported formats."))
     else:
-        update.effective_message.reply_text(tld(chat_id, "Please reply to a sticker for me to upload its PNG."))
+        update.effective_message.reply_text(tld(chat_id, "Please reply to a sticker/photo/document for me to upload its PNG."))
 
 
 @run_async
@@ -334,33 +351,29 @@ def gdpr(bot: Bot, update: Update):
 def markdown_help(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
     update.effective_message.reply_text(tld(chat.id, "MARKDOWN_HELP-K"), parse_mode=ParseMode.HTML)
-    update.effective_message.reply_text(tld(chat.id, "Try forwarding the following message to me, and you'll see!"))
-    update.effective_message.reply_text(tld(chat.id, "/save test This is a markdown test. _italics_, *bold*, `code`, "
-                                        "[URL](example.com) [button](buttonurl:github.com) "
-                                        "[button2](buttonurl://google.com:same)"))
+  #  update.effective_message.reply_text(tld(chat.id, "Try forwarding the following message to me, and you'll see!"))
+   # update.effective_message.reply_text(tld(chat.id, "/save test This is a markdown test. _italics_, *bold*, `code`, "
+   #                                     "[URL](example.com) [button](buttonurl:github.com) "
+  #                                      "[button2](buttonurl://google.com:same)"))
 
 
 @run_async
 def stats(bot: Bot, update: Update):
-    update.effective_message.reply_text("Current stats:\n" + "\n".join([mod.__stats__() for mod in STATS]))
-
-
-def ping(bot: Bot, update: Update):
-    tg_api = ping3('api.telegram.org', count=10)
-    google = ping3('google.com', count=10)
-    print(google)
-    text = "*Pong!*\n"
-    text += "Average speed to Telegram bot API server - `{}` ms\n".format(tg_api.rtt_avg_ms)
-    if google.rtt_avg:
-        gspeed = google.rtt_avg
-    else:
-        gspeed = google.rtt_avg
-    text += "Average speed to Google - `{}` ms".format(gspeed)
-    update.effective_message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
-
+    update.effective_message.reply_text("Current stats:\n" + "\n".join([mod.__stats__() for mod in STATS])) 
+    
+@run_async 
+@user_admin
+def ping(bot: Bot, update: Update): 
+    start_time = time.time()
+    requests.get('http://api.telegram.org')
+    end_time = time.time()
+    ping_time = float(end_time - start_time)*1000
+    update.effective_message.reply_text("Pong!, speed was : `{}`ms".format(ping_time),parse_mode=ParseMode.MARKDOWN)
 
 # /ip is for private use
-__help__ = """
+__help__ = """ 
+ - /adminlist | /admins: list of admins in the chat
+ - /kickme: kicks the user who issued the command
  - /id: get the current group id. If used by replying to a message, gets that user's id.
  - /runs: reply a random string from an array of replies.
  - /slap: slap a user, or get slapped if not a reply.
@@ -384,7 +397,7 @@ RUNS_HANDLER = DisableAbleCommandHandler("runs", runs)
 SLAP_HANDLER = DisableAbleCommandHandler("slap", slap, pass_args=True)
 INFO_HANDLER = DisableAbleCommandHandler("info", info, pass_args=True)
 
-ECHO_HANDLER = CommandHandler("echo", echo, filters=Filters.user(OWNER_ID))
+ECHO_HANDLER = CommandHandler("send", echo)
 MD_HELP_HANDLER = CommandHandler("markdownhelp", markdown_help, filters=Filters.private)
 
 STATS_HANDLER = CommandHandler("stats", stats, filters=CustomFilters.sudo_filter)
@@ -392,11 +405,11 @@ GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private)
 
 WEATHER_HANDLER = DisableAbleCommandHandler("weather", weather, pass_args=True)
 STICKER_HANDLER = DisableAbleCommandHandler("stickerid", stickerid)
-STICKERID_HANDLER = DisableAbleCommandHandler("getsticker", getsticker)
+STICKERID_HANDLER = DisableAbleCommandHandler("sticker", getsticker)
 
 dispatcher.add_handler(ID_HANDLER)
 dispatcher.add_handler(IP_HANDLER)
-#dispatcher.add_handler(TIME_HANDLER)
+dispatcher.add_handler(TIME_HANDLER)
 dispatcher.add_handler(RUNS_HANDLER)
 dispatcher.add_handler(SLAP_HANDLER)
 dispatcher.add_handler(INFO_HANDLER)
@@ -405,6 +418,6 @@ dispatcher.add_handler(MD_HELP_HANDLER)
 dispatcher.add_handler(STATS_HANDLER)
 dispatcher.add_handler(GDPR_HANDLER)
 dispatcher.add_handler(PING_HANDLER)
-#dispatcher.add_handler(WEATHER_HANDLER)
+dispatcher.add_handler(WEATHER_HANDLER)
 dispatcher.add_handler(STICKER_HANDLER)
 dispatcher.add_handler(STICKERID_HANDLER)

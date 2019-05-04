@@ -17,13 +17,15 @@ from tg_bot import dispatcher, updater, TOKEN, WEBHOOK, SUDO_USERS, OWNER_ID, DO
 from tg_bot.modules import ALL_MODULES
 from tg_bot.modules.helper_funcs.chat_status import is_user_admin
 from tg_bot.modules.helper_funcs.misc import paginate_modules
-from tg_bot.modules.translations.strings import tld, tld_help
+from tg_bot.modules.translations.strings import tld, tld_help 
 from tg_bot.modules.connection import connected
+
 
 DONATE_STRING = """Heya, glad to hear you want to donate!
 It took lots of work for [my creator](t.me/SonOfLars) to get me to where I am now, and every donation helps \
 motivate him to make me even better. All the donation money will go to a better VPS to host me, and/or beer \. 
 https://orangefox.tech/donate."""
+
 
 IMPORTED = {}
 MIGRATEABLE = []
@@ -46,7 +48,7 @@ for module_name in ALL_MODULES:
     if not imported_module.__mod_name__.lower() in IMPORTED:
         IMPORTED[imported_module.__mod_name__.lower()] = imported_module
     else:
-        raise Exception("Can't have two modules with the same name! Please change one")
+        raise Exception("Can't have two modules with he same name! Please change one")
 
     if hasattr(imported_module, "__help__") and imported_module.__help__:
         HELPABLE[imported_module.__mod_name__.lower()] = imported_module
@@ -97,32 +99,27 @@ def test(bot: Bot, update: Update):
 
 @run_async
 def start(bot: Bot, update: Update, args: List[str]):
-    print("Start")
-    chat = update.effective_chat  # type: Optional[Chat]
-    query = update.callback_query
     if update.effective_chat.type == "private":
         if len(args) >= 1:
             if args[0].lower() == "help":
-                send_help(update.effective_chat.id, tld(chat.id, "send-help").format(
-                     dispatcher.bot.first_name, "" if not ALLOW_EXCL else tld(chat.id, "\nAll commands can either be used with `/` or `!`.\n")))
+                send_help(update.effective_chat.id, HELP_STRINGS)
 
             elif args[0].lower().startswith("stngs_"):
                 match = re.match("stngs_(.*)", args[0].lower())
                 chat = dispatcher.bot.getChat(match.group(1))
 
                 if is_user_admin(chat, update.effective_user.id):
-                    send_settings(match.group(1), update.effective_user.id, user=False)
+                    send_settings(match.group(1), update.effective_user.id, False)
                 else:
-                    send_settings(match.group(1), update.effective_user.id, user=True)
+                    send_settings(match.group(1), update.effective_user.id, True)
 
             elif args[0][1:].isdigit() and "rules" in IMPORTED:
                 IMPORTED["rules"].send_rules(update, args[0], from_pm=True)
 
-        else:
+        else: 
             send_start(bot, update)
     else:
         update.effective_message.reply_text("Yo, whadup?")
-
 
 def send_start(bot, update):
     #Try to remove old message
@@ -133,16 +130,14 @@ def send_start(bot, update):
         pass
 
     chat = update.effective_chat  # type: Optional[Chat]
-    text = "Hey there! My name is YanaBot - I'm here to help you manage your groups! Click Help button to find out more about how to use me to my full potential."
-    text += "\nJoin to [YanaBot group](https://t.me/YanaBotGroup) and [YanaBot NEWS](https://t.me/YanaBotNEWS)"
+    first_name = update.effective_user.first_name 
+    text = "Hi {}, My name is Monica - I'm here to help you manage your groups! I'm built in python3, using the python-telegram-bot library,\nClick Help button to find out more about how to use me to my full potential."
+    text += "\nJoin to [Monica NEWS](https://t.me/joinchat/AAAAAFSlDsiCWeq9UhYLGg) for announcements on new features, downtime, etc."
 
     keyboard = [[InlineKeyboardButton(text="🛠 Control panel", callback_data="cntrl_panel_M")]]
     keyboard += [[InlineKeyboardButton(text="🇺🇸 Language", callback_data="set_lang_"), 
         InlineKeyboardButton(text="❔ Help", callback_data="help_back")]]
-
-    update.effective_message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.MARKDOWN)
-
-
+    update.effective_message.reply_text(text.format(escape_markdown(first_name)), reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
 
 def control_panel(bot, update):
     print("Panel")
@@ -161,7 +156,7 @@ def control_panel(bot, update):
 
         print(query.data)
     else:
-        M_match = "YanaBot is best bot"
+        M_match = "Monica is best bot"
 
     if M_match:
         text = "*Control panel* 🛠 (beta)"
@@ -279,17 +274,17 @@ def error_callback(bot, update, error):
     try:
         raise error
     except Unauthorized:
-        print("no nono1")
+        print("unauthorised")
         print(error)
         # remove update.message.chat_id from conversation list
     except BadRequest:
-        print("no nono2")
+        print("network")
         print("BadRequest caught")
         print(error)
 
         # handle malformed requests - read more below!
     except TimedOut:
-        print("no nono3")
+        print("time out")
         # handle slow connection problems
     except NetworkError:
         print("no nono4")
@@ -559,8 +554,6 @@ def main():
     dispatcher.add_handler(cntrl_panel_callback_handler)
     dispatcher.add_handler(cntrl_panel)
 
-    
-
     settings_handler = CommandHandler("settings", get_settings)
     settings_callback_handler = CallbackQueryHandler(settings_button, pattern=r"stngs_")
 
@@ -583,7 +576,7 @@ def main():
 
     if WEBHOOK:
         LOGGER.info("Using webhooks.")
-        updater.start_webhook(listen="127.0.0.1",
+        updater.start_webhook(listen="0.0.0.0",
                               port=PORT,
                               url_path=TOKEN)
 

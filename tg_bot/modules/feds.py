@@ -26,7 +26,7 @@ from tg_bot.modules.connection import connected
 # Federation by MrYacha 2018-2019
 # Thanks to @peaktogoo for /fbroadcast
 # Time spended on feds = 10h
-print("Federation module by MrYacha 2018-2019")
+print("Federation module")
 
 FBAN_ERRORS = {
     "User is an administrator of the chat",
@@ -60,13 +60,6 @@ def new_fed(bot: Bot, update: Update, args: List[str]):
         fed_id = key_gen()
         fed_name = args[0]
 
-        # Hardcoded fed_id's
-        if fed_name == "OrangeFox/YanaBot-Official":
-                fed_id = "Orang30fficialFed"
-        elif fed_name == "crDroid":
-                fed_id = "crDr0id0fficialFed"
-        #
-
         if not sql.search_fed_by_name(fed_name) == False:
                 update.effective_message.reply_text(tld(chat.id, "Already exists federation with this name, change name!"))
                 return
@@ -95,7 +88,7 @@ def del_fed(bot: Bot, update: Update, args: List[str]):
         if len(args) >= 1:
                 fed_id = args[0]
                 sql.del_fed(fed_id, chat.id)
-                update.effective_message.reply_text(tld(chat.id, "Deleted!"))
+                update.effective_message.reply_text(tld(chat.id, "federation deleted!"))
         else:
                 update.effective_message.reply_text(tld(chat.id, "Please write federation id to remove!"))
 
@@ -106,22 +99,22 @@ def join_fed(bot: Bot, update: Update, args: List[str]):
 
     administrators = chat.get_administrators()
 
-    #if user.id in SUDO_USERS:
-    #    pass
-    #else:
-    for admin in administrators:
-        status = admin.status
-        if status == "creator":
-            print(admin)
-            if str(admin.user.id) == str(user.id):
-                pass
-            else:
-                update.effective_message.reply_text(tld(chat.id, "Only group creator can do it!"))
-                return
-
+    if user.id in SUDO_USERS:
+        pass
+    else:
+        for admin in administrators:
+            status = admin.status
+            if status == "creator":
+                print(admin)
+                if str(admin.user.id) == str(user.id):
+                   pass
+                else:
+                   update.effective_message.reply_text(tld(chat.id, "Only group creator can do it!"))
+                   return
+    
     if len(args) >= 1:
         sql.chat_join_fed(args[0], chat.id)
-        update.effective_message.reply_text(tld(chat.id, "Chat joined to federation!"))
+        update.effective_message.reply_text(tld(chat.id, "Joined to fed!"))
     else:
         update.effective_message.reply_text(tld(chat.id, "Please write federation id to join!"))
 
@@ -147,7 +140,7 @@ def leave_fed(bot: Bot, update: Update, args: List[str]):
                     return
 
     if sql.chat_leave_fed(chat.id) == True:
-        update.effective_message.reply_text(tld(chat.id, "Leaved from fed!"))
+        update.effective_message.reply_text(tld(chat.id, "successfully Left from federation!"))
     else:
         update.effective_message.reply_text(tld(chat.id, "Error!"))
 
@@ -186,7 +179,7 @@ def user_join_fed(bot: Bot, update: Update, args: List[str]):
                 return
 
         res = sql.user_join_fed(fed_id, user_id)
-        update.effective_message.reply_text(tld(chat.id, "Promoted to federation!"))
+        update.effective_message.reply_text(tld(chat.id, "Joined to fed!"))
 
 
 def user_demote_fed(bot: Bot, update: Update, args: List[str]):
@@ -234,7 +227,7 @@ def fed_info(bot: Bot, update: Update, args: List[str]):
         fed_id = sql.get_fed_id(chat.id)
 
         if not fed_id:
-            update.effective_message.reply_text(tld(chat.id, "This group not in any federation!"))
+            update.effective_message.reply_text(tld(chat.id, "This group is not in any federation!"))
             return
 
         if is_user_fed_admin(fed_id, user.id) == False:
@@ -272,12 +265,12 @@ def fed_info(bot: Bot, update: Update, args: List[str]):
 
         # Chance 1/5 to add this string to /fedinfo
         # You can remove this or reduce the percentage, but if you really like my work leave this.
-        num = random.randint(1,5)
+        num = 1
         print("random ", num)
-        if num == 3:
-            text += "\n\nFederation by MrYacha for YanaBot"
-
-        update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
+        if num == 1:
+           text += "\n\nFederation by MrYacha"
+        
+           update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
 
 
 
@@ -313,7 +306,7 @@ def fed_ban(bot: Bot, update: Update, args: List[str]):
         return
 
     
-    message.reply_text(tld(chat.id, "Start fbanning!"))
+    message.reply_text(tld(chat.id, "successfully Banned that user from federation!"))
 
     if reason == "":
         reason = "no reason"
@@ -359,12 +352,12 @@ def unfban(bot: Bot, update: Update, args: List[str]):
         return
 
     if sql.get_fban_user(fed_id, user_id) == False:
-        message.reply_text(tld(chat.id, "This user is not gbanned!"))
+        message.reply_text(tld(chat.id, "This user is not fbanned!"))
         return
 
     banner = update.effective_user  # type: Optional[User]
 
-    message.reply_text(tld(chat.id, "I'll give {} a second chance in this federation.").format(user_chat.first_name))
+    message.reply_text(tld(chat.id, "Alright,I'll give {} a second chance in this federation.").format(user_chat.first_name))
 
     h = sql.all_fed_chats(fed_id)
 
@@ -517,7 +510,7 @@ __help__ = """
 Ah, group management. It's all fun and games, until you start getting spammers in, and you need to ban them. Then you need to start banning more, and more, and it gets painful.
 But then you have multiple groups, and you don't want these spammers in any of your groups - how can you deal? Do you have to ban them manually, in all your groups?
 
-Inspired by [Rose bot](t.me/MissRose_bot)
+Inspired by [missrose_bot](t.me/missrose_bot)
 
 No more! With federations, you can make a ban in one chat overlap to all your other chats.
 You can even appoint federation admins, so that your trustworthy admins can ban across all the chats that you want to protect.

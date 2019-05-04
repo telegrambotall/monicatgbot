@@ -5,6 +5,8 @@ from telegram import Message, Chat, Update, Bot, User
 from telegram.error import BadRequest
 from telegram.ext import Filters, MessageHandler, CommandHandler, run_async
 from telegram.utils.helpers import mention_html
+from tg_bot.modules.helper_funcs.extraction import extract_user_and_text 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, User, CallbackQuery
 
 from tg_bot import dispatcher
 from tg_bot.modules.helper_funcs.chat_status import is_user_admin, user_admin, can_restrict
@@ -22,7 +24,7 @@ def check_flood(bot: Bot, update: Update) -> str:
     user = update.effective_user  # type: Optional[User]
     chat = update.effective_chat  # type: Optional[Chat]
     msg = update.effective_message  # type: Optional[Message]
-
+   
     if not user:  # ignore channels
         return ""
 
@@ -36,22 +38,21 @@ def check_flood(bot: Bot, update: Update) -> str:
         return ""
 
     try:
-        chat.kick_member(user.id)
-        msg.reply_text(tld(chat.id, "I like to leave the flooding to natural disasters. But you, you were just a "
-                       "disappointment. Get out."))
+        bot.restrict_chat_member(chat.id, user.id, can_send_messages=False)
+        msg.reply_text(tld(chat.id, "Alright! {} has been Muted for flooding the chat.".format(mention_html(user.id, user.first_name))), parse_mode=ParseMode.HTML)
 
-        return "<b>{}:</b>" \
-               "\n#BANNED" \
+        return "#MUTED" \
+               "\n<b>Chat:</b> {}" \
                "\n<b>User:</b> {}" \
                "\nFlooded the group.".format(html.escape(chat.title),
                                              mention_html(user.id, user.first_name))
 
     except BadRequest:
-        msg.reply_text(tld(chat.id, "I can't kick people here, give me permissions first! Until then, I'll disable antiflood."))
+        msg.reply_text(tld(chat.id, "I can't Mute people here, give me permissions first! Until then, I'll disable antiflood."))
         sql.set_flood(chat.id, 0)
-        return "<b>{}:</b>" \
-               "\n#INFO" \
-               "\nDon't have kick permissions, so automatically disabled antiflood.".format(chat.title)
+        return "#INFO" \
+               "\n<b>Chat:</b> {}" \
+               "\nDon't have Mute permissions, so automatically disabled antiflood.".format(chat.title)
 
 
 @run_async
@@ -74,8 +75,8 @@ def set_flood(bot: Bot, update: Update, args: List[str]) -> str:
             if amount <= 0:
                 sql.set_flood(chat.id, 0)
                 message.reply_text(tld(chat.id,  "Antiflood has been disabled."))
-                return "<b>{}:</b>" \
-                       "\n#SETFLOOD" \
+                return "#SETFLOOD" \
+                       "\n<b>Chat:</b> {}" \
                        "\n<b>Admin:</b> {}" \
                        "\nDisabled antiflood.".format(html.escape(chat.title), mention_html(user.id, user.first_name))
 
@@ -86,8 +87,8 @@ def set_flood(bot: Bot, update: Update, args: List[str]) -> str:
             else:
                 sql.set_flood(chat.id, amount)
                 message.reply_text(tld(chat.id, "Antiflood has been updated and set to {}").format(amount))
-                return "<b>{}:</b>" \
-                       "\n#SETFLOOD" \
+                return "#SETFLOOD" \
+                       "\n<b>Chat:</b> {}" \
                        "\n<b>Admin:</b> {}" \
                        "\nSet antiflood to <code>{}</code>.".format(html.escape(chat.title),
                                                                     mention_html(user.id, user.first_name), amount)
@@ -107,7 +108,7 @@ def flood(bot: Bot, update: Update):
         update.effective_message.reply_text(tld(chat.id, "I'm not currently enforcing flood control!"))
     else:
         update.effective_message.reply_text(tld(chat.id,
-            "I'm currently banning users if they send more than {} consecutive messages.").format(limit))
+            "I'm currently Muting users if they send more than {} consecutive messages.").format(limit))
 
 
 def __migrate__(old_chat_id, new_chat_id):
@@ -124,13 +125,10 @@ def __chat_settings__(bot, update, chat, chatP, user):
 
 
 __help__ = """
- You know how sometimes, people join, send 100 messages, and ruin your chat? With antiflood, that happens no more!
+ - /flood: Get the current flood control setting
 
-Antiflood allows you to take action on users that send more than x messages in a row. Actions are: ban/kick/mute/tban/tmute
-
-Available commands are:
- - /flood: gets the current antiflood settings.
- - /setflood <number/off>: sets the number of messages at which to take action on a user.
+*Admin only:*
+ - /setflood <int/'no'/'off'>: enables or disables flood control
 """
 
 __mod_name__ = "AntiFlood"

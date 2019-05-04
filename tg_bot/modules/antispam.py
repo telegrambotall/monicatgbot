@@ -96,7 +96,7 @@ def gban(bot: Bot, update: Update, args: List[str]):
     message.reply_text("*Blows dust off of banhammer* 😉")
 
     banner = update.effective_user  # type: Optional[User]
-    send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
+    send_to_list(bot, SUDO_USERS + OWNER_ID,
                  "{} is gbanning user {} "
                  "because:\n{}".format(mention_html(banner.id, banner.first_name),
                                        mention_html(user_chat.id, user_chat.first_name), reason or "No reason given"),
@@ -119,13 +119,13 @@ def gban(bot: Bot, update: Update, args: List[str]):
                 pass
             else:
                 message.reply_text("Could not gban due to: {}".format(excp.message))
-                send_to_list(bot, SUDO_USERS + SUPPORT_USERS, "Could not gban due to: {}".format(excp.message))
+                send_to_list(bot, SUDO_USERS + OWNER_ID, "Could not gban due to: {}".format(excp.message))
                 sql.ungban_user(user_id)
                 return
         except TelegramError:
             pass
 
-    send_to_list(bot, SUDO_USERS + SUPPORT_USERS, "gban complete!")
+    send_to_list(bot, SUDO_USERS + OWNER_ID, "gban complete!")
     message.reply_text("Person has been gbanned.")
 
 
@@ -151,7 +151,7 @@ def ungban(bot: Bot, update: Update, args: List[str]):
 
     message.reply_text("I'll give {} a second chance, globally.".format(user_chat.first_name))
 
-    send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
+    send_to_list(bot, SUDO_USERS + OWNER_ID,
                  "{} has ungbanned user {}".format(mention_html(banner.id, banner.first_name),
                                                    mention_html(user_chat.id, user_chat.first_name)),
                  html=True)
@@ -181,7 +181,7 @@ def ungban(bot: Bot, update: Update, args: List[str]):
 
     sql.ungban_user(user_id)
 
-    send_to_list(bot, SUDO_USERS + SUPPORT_USERS, "un-gban complete!")
+    send_to_list(bot, SUDO_USERS + OWNER_ID, "un-gban complete!")
 
     message.reply_text("Person has been un-gbanned.")
 
@@ -263,7 +263,7 @@ def gmute(bot: Bot, update: Update, args: List[str]):
     message.reply_text("*Gets duct tape ready* 😉")
 
     muter = update.effective_user  # type: Optional[User]
-    send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
+    send_to_list(bot, SUDO_USERS + OWNER_ID,
                  "{} is gmuting user {} "
                  "because:\n{}".format(mention_html(muter.id, muter.first_name),
                                        mention_html(user_chat.id, user_chat.first_name), reason or "No reason given"),
@@ -556,29 +556,25 @@ def __user_info__(user_id, chat_id):
     is_gbanned = sql.is_user_gbanned(user_id)
     is_gmuted = sql.is_user_gmuted(user_id)
 
-    if not user_id in SUDO_USERS:
-
-        text = tld(chat_id, "Globally banned: <b>{}</b>")
-        if is_gbanned:
-            text = text.format(tld(chat_id, "Yes"))
-            user = sql.get_gbanned_user(user_id)
-            if user.reason:
-                text += tld(chat_id, "\nReason: {}").format(html.escape(user.reason))
-        else:
-            text = text.format(tld(chat_id, "No"))
-        
-        text += tld(chat_id, "\nGlobally muted: <b>{}</b>")
-        if is_gmuted:
-            text = text.format(tld(chat_id, "Yes"))
-            user = sql.get_gmuted_user(user_id)
-            if user.reason:
-                text += tld(chat_id, "\nReason: {}").format(html.escape(user.reason))
-        else:
-            text = text.format(tld(chat_id, "No"))
-
-        return text
+    text = tld(chat_id, "Globally banned: <b>{}</b>")
+    if is_gbanned:
+        text = text.format(tld(chat_id, "Yes"))
+        user = sql.get_gbanned_user(user_id)
+        if user.reason:
+            text += tld(chat_id, "\nReason: {}").format(html.escape(user.reason))
     else:
-        return ""
+        text = text.format(tld(chat_id, "No"))
+    
+    text += tld(chat_id, "\nGlobally muted: <b>{}</b>")
+    if is_gmuted:
+        text = text.format(tld(chat_id, "Yes"))
+        user = sql.get_gmuted_user(user_id)
+        if user.reason:
+            text += tld(chat_id, "\nReason: {}").format(html.escape(user.reason))
+    else:
+        text = text.format(tld(chat_id, "No"))
+
+    return text
 
 
 def __migrate__(old_chat_id, new_chat_id):
