@@ -134,7 +134,7 @@ This will create two buttons on a single line, instead of one button per line.
 """
 
 EnglishStrings = {
-    "send-help": """Main commands available:
+    "send-help": """*Main commands available*:
  - /start: start the bot
  - /help or /help <module name>: PM's you info about that module.
  - /lang: Change bot language
