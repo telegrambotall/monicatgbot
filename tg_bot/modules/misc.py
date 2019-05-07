@@ -380,7 +380,7 @@ __help__ = """
  - /info: get information about a user.
  - /gdpr: deletes your information from the bot's database. Private chats only.
  - /stickerid: reply to a sticker to me to tell you its file ID.
- - /getsticker: reply to a sticker to me to upload its raw PNG file.
+ - /sticker or /getsticker: reply to a photo/documents/sticker to me to upload its raw PNG file.
 
  - /markdownhelp: quick summary of how markdown works in telegram - can only be called in private chats.
 """
@@ -405,7 +405,7 @@ GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private)
 
 WEATHER_HANDLER = DisableAbleCommandHandler("weather", weather, pass_args=True)
 STICKER_HANDLER = DisableAbleCommandHandler("stickerid", stickerid)
-STICKERID_HANDLER = DisableAbleCommandHandler("sticker", getsticker)
+STICKERID_HANDLER = DisableAbleCommandHandler(["sticker","getsticker"], getsticker)
 
 dispatcher.add_handler(ID_HANDLER)
 dispatcher.add_handler(IP_HANDLER)
