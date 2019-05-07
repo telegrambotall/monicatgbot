@@ -73,13 +73,13 @@ def locale_button(bot, update):
                                             InlineKeyboardButton("English 🇺🇸", callback_data="set_lang_en")]] + [[
                                             InlineKeyboardButton("Russian 🇷🇺", callback_data="set_lang_ru"), 
                                             InlineKeyboardButton("Ukrainian 🇺🇦", callback_data="set_lang_uk")]] + [[
-                                            InlineKeyboardButton("Back", callback_data="help_back")]]))
+                                            InlineKeyboardButton("Back", callback_data="bot_start")]]))
 
     print(lang_match)
     query.message.delete()
     bot.answer_callback_query(query.id)
 
-LOCALE_HANDLER = CommandHandler(["set_locale", "locale", "lang", "setlang"], locale, pass_args=True)
+LOCALE_HANDLER = CommandHandler(["lang", "setlang"], locale, pass_args=True)
 locale_handler = CallbackQueryHandler(locale_button, pattern="chng_lang")
 set_locale_handler = CallbackQueryHandler(locale_button, pattern=r"set_lang_")
 

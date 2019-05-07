@@ -20,6 +20,10 @@ from tg_bot.modules.helper_funcs.misc import paginate_modules
 from tg_bot.modules.translations.strings import tld, tld_help 
 from tg_bot.modules.connection import connected
 
+PM_START = """Hi {}, My name is {} - I'm here to help you manage your groups!
+I'm a modular group management bot with a few fun extras! Have a look at the following for an idea of some of the things I can help you with.
+I'm built in python3, using the python-telegram-bot library,
+Click Help button to find out more about how to use me to my full potential. Join to my [NEWS CHANNEL](https://t.me/joinchat/AAAAAFSlDsiCWeq9UhYLGg) for announcements on new features, downtime, etc."""
 
 DONATE_STRING = """Heya, glad to hear you want to donate!
 It took lots of work for [my creator](t.me/SonOfLars) to get me to where I am now, and every donation helps \
@@ -48,7 +52,7 @@ for module_name in ALL_MODULES:
     if not imported_module.__mod_name__.lower() in IMPORTED:
         IMPORTED[imported_module.__mod_name__.lower()] = imported_module
     else:
-        raise Exception("Can't have two modules with the same name! Please change one")
+        raise Exception("Can't have two modules with he same name! Please change one")
 
     if hasattr(imported_module, "__help__") and imported_module.__help__:
         HELPABLE[imported_module.__mod_name__.lower()] = imported_module
@@ -131,13 +135,13 @@ def send_start(bot, update):
 
     chat = update.effective_chat  # type: Optional[Chat]
     first_name = update.effective_user.first_name 
-    text = "Hi {}, My name is Monica - I'm here to help you manage your groups! I'm built in python3, using the python-telegram-bot library,\nClick Help button to find out more about how to use me to my full potential."
-    text += "\nJoin to [Monica NEWS](https://t.me/joinchat/AAAAAFSlDsiCWeq9UhYLGg) for announcements on new features, downtime, etc."
+    text = PM_START
+
 
     keyboard = [[InlineKeyboardButton(text="🛠 Control panel", callback_data="cntrl_panel_M")]]
     keyboard += [[InlineKeyboardButton(text="🇺🇸 Language", callback_data="set_lang_"), 
         InlineKeyboardButton(text="❔ Help", callback_data="help_back")]]
-    update.effective_message.reply_text(text.format(escape_markdown(first_name)), reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
+    update.effective_message.reply_text(PM_START.format(escape_markdown(first_name), bot.first_name), reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
 
 def control_panel(bot, update):
     print("Panel")
@@ -183,7 +187,7 @@ def control_panel(bot, update):
         else:
             text += "\nNo chat connected!"
 
-        keyboard += [[InlineKeyboardButton(text="⬅️ Back", callback_data="bot_start")]]
+        keyboard += [[InlineKeyboardButton(text="Back", callback_data="bot_start")]]
 
         update.effective_message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.MARKDOWN)
 
@@ -202,7 +206,7 @@ def control_panel(bot, update):
                 CHAT_SETTINGS[module].__mod_name__) + R[0]
 
             keyboard = R[1]
-            keyboard += [[InlineKeyboardButton(text="⬅️ Back", callback_data="cntrl_panel_U(1)")]]
+            keyboard += [[InlineKeyboardButton(text="Back", callback_data="cntrl_panel_U(1)")]]
                 
             query.message.reply_text(text=text, arse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(keyboard))
 
