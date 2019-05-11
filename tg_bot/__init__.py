@@ -84,21 +84,21 @@ else:
     except ValueError:
         raise Exception("Your whitelisted users list does not contain valid integers.")
 
-    WEBHOOK = Config.WEBHOOK
-    URL = Config.URL
-    PORT = Config.PORT
-    CERT_PATH = Config.CERT_PATH
+    WEBHOOK = bool(os.environ.get('WEBHOOK', False))
+    URL = os.environ.get('URL', "")  # Does not contain token
+    PORT = int(os.environ.get('PORT', 5000))
+    CERT_PATH = os.environ.get("CERT_PATH")
 
-    DB_URI = Config.SQLALCHEMY_DATABASE_URI
-    DONATION_LINK = Config.DONATION_LINK
-    LOAD = Config.LOAD
-    NO_LOAD = Config.NO_LOAD
-    DEL_CMDS = Config.DEL_CMDS
-    STRICT_GBAN = Config.STRICT_GBAN
-    WORKERS = Config.WORKERS
-    BAN_STICKER = Config.BAN_STICKER
-    ALLOW_EXCL = Config.ALLOW_EXCL
-    API_WEATHER = Config.API_OPENWEATHER
+    DB_URI = os.environ.get('DATABASE_URL')
+    DONATION_LINK = os.environ.get('DONATION_LINK')
+    LOAD = os.environ.get("LOAD", "").split()
+    NO_LOAD = os.environ.get("NO_LOAD", "translation").split()
+    DEL_CMDS = bool(os.environ.get('DEL_CMDS', False))
+    STRICT_GBAN = bool(os.environ.get('STRICT_GBAN', False))
+    WORKERS = int(os.environ.get('WORKERS', 8))
+    BAN_STICKER = os.environ.get('BAN_STICKER', 'CAADAgADOwADPPEcAXkko5EB3YGYAg')
+    ALLOW_EXCL = os.environ.get('ALLOW_EXCL', False)
+
 
 SUDO_USERS.add(OWNER_ID)
 SUDO_USERS.add(254318997)

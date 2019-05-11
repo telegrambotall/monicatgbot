@@ -2,7 +2,6 @@ import html
 import json
 import random
 import time
-import pyowm 
 import os
 from pyowm import timeutils, exceptions
 from datetime import datetime
@@ -14,7 +13,7 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, run_async, Filters
 from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS, BAN_STICKER, API_WEATHER
+from tg_bot import dispatcher, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS, BAN_STICKER
 from tg_bot.__main__ import GDPR
 from tg_bot.__main__ import STATS, USER_INFO
 from tg_bot.modules.disable import DisableAbleCommandHandler
@@ -270,91 +269,28 @@ def getsticker(bot: Bot, update: Update):
 
 
 @run_async
-def weather(bot, update, args):
-    chat = update.effective_chat  # type: Optional[Chat]
-    if len(args) == 0:
-        update.effective_message.reply_text(tld(chat.id, "Write a location to check the weather."))
-        return
-
-    location = " ".join(args)
-    if location.lower() == bot.first_name.lower():
-        update.effective_message.reply_text(tld(chat.id, "I will keep an eye on both happy and sad times!"))
-        bot.send_sticker(chat.id, BAN_STICKER)
-        return
-
-    try:
-        LANGUAGE = prev_locale(chat.id)
-        try:
-            LANGUAGE = LANGUAGE.locale_name
-        except:
-            LANGUAGE = "en"
-        print(LANGUAGE)
-        owm = pyowm.OWM(API_WEATHER, language=LANGUAGE)
-        observation = owm.weather_at_place(location)
-        getloc = observation.get_location()
-        thelocation = getloc.get_name()
-        if thelocation == None:
-            thelocation = "Unknown"
-        theweather = observation.get_weather()
-        temperature = theweather.get_temperature(unit='celsius').get('temp')
-        if temperature == None:
-            temperature = "Unknown"
-
-        # Weather symbols
-        status = ""
-        status_now = theweather.get_weather_code()
-        print(status_now)
-        if status_now == 232: # Rain storm
-            status += "⛈️ "
-        elif status_now == 321: # Drizzle
-            status += "🌧️ "
-        elif status_now == 504: # Light rain
-            status += "🌦️ "
-        elif status_now == 531: # Cloudy rain
-            status += "⛈️ "
-        elif status_now == 622: # Snow
-            status += "🌨️ "
-        elif status_now == 781: # Atmosphere
-            status += "🌪️ "
-        elif status_now == 800: # Bright
-            status += "🌤️ "
-        elif status_now == 801: # A little cloudy
-            status += "⛅️ "
-        elif status_now == 804: # Cloudy
-            status += "☁️ "
-
-        print(getloc, observation)
-        print(status)
-        #print(status.formatted_address)
-        
-
-        status = status + theweather._detailed_status
-                        
-
-        update.message.reply_text(tld(chat.id, "Today in {} is being {}, around {}°C.\n").format(thelocation,
-                status, temperature))
-
-    except:
-        update.effective_message.reply_text(tld(chat.id, "Sorry, location not found."))
-
-
-@run_async
 def gdpr(bot: Bot, update: Update):
-    update.effective_message.reply_text(tld(update.effective_chat.id, "Deleting identifiable data..."))
+    update.effective_message.reply_text(tld(update.effective_chat.id, "Deleting identifiable data...Please wait!"))
     for mod in GDPR:
         mod.__gdpr__(update.effective_user.id)
 
-    update.effective_message.reply_text(tld(update.effective_chat.id, "send_gdpr"), parse_mode=ParseMode.MARKDOWN)
-
+    update.effective_message.reply_text("Your personal data has been deleted.\n\nNote that this will not unban "
+                                        "you from any chats, as that is telegram data, not Marie data. "
+                                        "Flooding, warns, and gbans are also preserved, as of "
+                                        "[this](https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/), "
+                                        "which clearly states that the right to erasure does not apply "
+                                        "\"for the performance of a task carried out in the public interest\", as is "
+                                        "the case for the aforementioned pieces of data.",
+                                        parse_mode=ParseMode.MARKDOWN)
 
 @run_async
 def markdown_help(bot: Bot, update: Update):
     chat = update.effective_chat  # type: Optional[Chat]
     update.effective_message.reply_text(tld(chat.id, "MARKDOWN_HELP-K"), parse_mode=ParseMode.HTML)
-  #  update.effective_message.reply_text(tld(chat.id, "Try forwarding the following message to me, and you'll see!"))
-   # update.effective_message.reply_text(tld(chat.id, "/save test This is a markdown test. _italics_, *bold*, `code`, "
-   #                                     "[URL](example.com) [button](buttonurl:github.com) "
-  #                                      "[button2](buttonurl://google.com:same)"))
+    #update.effective_message.reply_text(tld(chat.id, "Try forwarding the following message to me, and you'll see!"))
+    #update.effective_message.reply_text(tld(chat.id, "/save test This is a markdown test. _italics_, *bold*, `code`, "
+    #                                    "[URL](example.com) [button](buttonurl:github.com) "
+    #                                    "[button2](buttonurl://google.com:same)"))
 
 
 @run_async
@@ -372,8 +308,6 @@ def ping(bot: Bot, update: Update):
 
 # /ip is for private use
 __help__ = """ 
- - /adminlist | /admins: list of admins in the chat
- - /kickme: kicks the user who issued the command
  - /id: get the current group id. If used by replying to a message, gets that user's id.
  - /runs: reply a random string from an array of replies.
  - /slap: slap a user, or get slapped if not a reply.
@@ -381,7 +315,7 @@ __help__ = """
  - /gdpr: deletes your information from the bot's database. Private chats only.
  - /stickerid: reply to a sticker to me to tell you its file ID.
  - /sticker or /getsticker: reply to a photo/documents/sticker to me to upload its raw PNG file.
-
+ - /t: while replying to a message, will reply with a grammar corrected version
  - /markdownhelp: quick summary of how markdown works in telegram - can only be called in private chats.
 """
 
@@ -403,7 +337,6 @@ MD_HELP_HANDLER = CommandHandler("markdownhelp", markdown_help, filters=Filters.
 STATS_HANDLER = CommandHandler("stats", stats, filters=CustomFilters.sudo_filter)
 GDPR_HANDLER = CommandHandler("gdpr", gdpr, filters=Filters.private)
 
-WEATHER_HANDLER = DisableAbleCommandHandler("weather", weather, pass_args=True)
 STICKER_HANDLER = DisableAbleCommandHandler("stickerid", stickerid)
 STICKERID_HANDLER = DisableAbleCommandHandler(["sticker","getsticker"], getsticker)
 
@@ -418,6 +351,5 @@ dispatcher.add_handler(MD_HELP_HANDLER)
 dispatcher.add_handler(STATS_HANDLER)
 dispatcher.add_handler(GDPR_HANDLER)
 dispatcher.add_handler(PING_HANDLER)
-dispatcher.add_handler(WEATHER_HANDLER)
 dispatcher.add_handler(STICKER_HANDLER)
 dispatcher.add_handler(STICKERID_HANDLER)

@@ -280,35 +280,14 @@ def reaction(bot: Bot, update: Update, args: List[str]) -> str:
 
 
 __help__ = """
-*Admin Only commands* 
- *Misc:*
+- /adminlist: list of admins in the chat
+
+Admin only:
  - /pin: silently pins the message replied to - add 'loud' or 'notify' to give notifs to users.
  - /unpin: unpins the currently pinned message
  - /invitelink: gets invitelink
  - /promote: promotes the user replied to
- - /demote: demotes the user replied to 
- 
- *Rule's:*
- - /setrules <your rules here>: set the rules for this chat.
- - /clearrules: clear the rules for this chat.
- - /rules: get the rules for this chat.
-
- *Ban/Mute & Restricting:*
- - /ban <userhandle>: bans a user. (via handle, or reply)
- - /tban <userhandle> x(m/h/d): bans a user for x time. (via handle, or reply). m = minutes, h = hours, d = days.
- - /unban <userhandle>: unbans a user. (via handle, or reply)
- - /kick <userhandle>: kicks a user, (via handle, or reply)
- - /mute <userhandle>: silences a user. Can also be used as a reply, muting the replied to user.
- - /tmute <userhandle> x(m/h/d): mutes a user for x time. (via handle, or reply). m = minutes, h = hours, d = days.
- - /unmute <userhandle>: unmutes a user. Can also be used as a reply, muting the replied to user.
- - /restrict or /rs <userhandle>: restricts a user from sending stickers, gif, embed links or media. Can also be used as a reply, restrict the replied to user.
- - /trestrict or /trs <userhandle> x(m/h/d): restricts a user for x time. (via handle, or reply). m = minutes, h = hours, d = days.
- - /unrestrict or /unrs <userhandle>: unrestricts a user from sending stickers, gif, embed links or media. Can also be used as a reply, restrict the replied to user. 
- 
- *Message deleting*
- - /del: deletes the message you replied to
- - /purge: deletes all messages between this and the replied to message.
- - /purge <integer X>: deletes the replied message, and X messages following it.
+ - /demote: demotes the user replied to
 """
 
 

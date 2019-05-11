@@ -81,14 +81,13 @@ def check_afk(bot, update, user_id, fst_name):
 
 
 
-#__help__ = """
- #- /afk <reason>: mark yourself as AFK.
- #- brb <reason>: same as the afk command - but not a command.
+__help__ = """
+ - /afk <reason>: mark yourself as AFK.
 
-#When marked as AFK, any mentions will be replied to with a message to say you're not available!
-#"""
+When marked as AFK, any mentions will be replied to with a message to say you're not available!
+"""
 
-#__mod_name__ = "AFK"
+__mod_name__ = "AFK"
 
 AFK_HANDLER = DisableAbleCommandHandler("afk", afk)
 #AFK_REGEX_HANDLER = DisableAbleRegexHandler("(?i)brb", afk, friendly="afk")
