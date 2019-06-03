@@ -23,7 +23,7 @@ from tg_bot.modules.connection import connected
 PM_START = """Hi {}, My name is {} - I'm here to help you manage your groups!
 I'm a modular group management bot with a few fun extras! Have a look at the following for an idea of some of the things I can help you with.
 I'm built in python3, using the python-telegram-bot library,
-Click Help button to find out more about how to use me to my full potential. Join to my [NEWS CHANNEL](https://t.me/joinchat/AAAAAFSlDsiCWeq9UhYLGg) for announcements on new features, downtime, etc."""
+Click Help button to find out more about how to use me to my full potential. Join to my [My Support Group](https://t.me/KeralasBots) for announcements on new features, downtime, etc.\n\nMade With Love💚💙❤️ @AnandTEcH_MasTer"""
 
 DONATE_STRING = """Heya, glad to hear you want to donate!
 It took lots of work for [my creator](t.me/SonOfLars) to get me to where I am now, and every donation helps \
@@ -139,7 +139,7 @@ def send_start(bot, update):
     first_name = update.effective_user.first_name 
     text = PM_START
 
-
+    keyboard = [[InlineKetboardButton(text="📡 Support Group", url="https://t.me/KeralasBots")]]
     keyboard = [[InlineKeyboardButton(text="🛠 Control panel", callback_data="cntrl_panel_M")]]
     keyboard += [[InlineKeyboardButton(text="🇺🇸 Language", callback_data="set_lang_"), 
         InlineKeyboardButton(text="❔ Help", callback_data="help_back")]]
