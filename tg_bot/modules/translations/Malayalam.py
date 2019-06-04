@@ -112,3 +112,17 @@ EG: <code> [ഇത് ഒരു ബട്ടൺ ആണ്] (buttonurl: example.c
 [button] (buttonurl: //google.com: അതേ) </ code>
 ഓരോ വരിയിലും ഒരു ബട്ടണിന് പകരം ഒരു വരിയിൽ രണ്ട് ബട്ടണുകൾ സൃഷ്ടിക്കും.
 """
+
+MalayalamStrings = {
+    
+#Connections
+    "Disabled connections to this chat for users": "ഉപയോക്താക്കൾക്കായി ഈ ചാറ്റ് അപ്രാപ്തമാക്കിയ കണക്ഷനുകൾ"
+    "Enabled connections to this chat for users":  "ഉപയോക്താക്കൾക്കായി ഈ ചാറ്റിനായി പ്രാപ്തമാക്കിയ കണക്ഷനുകൾ"
+    "Please enter on/yes/off/no in group!":  "ദയവായി ഗ്രൂപ്പിൽ on/yes/off/no നൽകുക!"
+    "Successfully connected to *{}*": "* {} * എന്നതുമായി വിജയകരമായി ബന്ധിപ്പിച്ചു"
+    "Connection failed!": "കണക്ഷൻ പരാജയപ്പെട്ടു!"
+    "Connections to this chat not allowed!": "ഈ ചാറ്റിലേക്കുള്ള ബന്ധം അനുവദനീയമല്ല!"
+    "Write chat ID to connect!": "കണക്റ്റുചെയ്യാൻ ചാറ്റ് ഐഡി എഴുതുക!"
+    "Usage limited to PMs only!": "PM ലേക്ക് മാത്രം  ഉപയോഗിക്കുക !"
+    
+#Admin
