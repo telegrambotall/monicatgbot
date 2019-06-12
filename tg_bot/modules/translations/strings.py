@@ -2,6 +2,8 @@ from tg_bot.modules.sql.translation import prev_locale
 from tg_bot.modules.translations.English import EnglishStrings
 from tg_bot.modules.translations.Russian import RussianStrings
 from tg_bot.modules.translations.Ukraine import UkrainianStrings
+from tg_bot.modules.translations.Malayalam import MalayalamStrings
+
 
 def tld(chat_id, t, show_none=True):
     LANGUAGE = prev_locale(chat_id)
