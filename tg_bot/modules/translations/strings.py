@@ -12,6 +12,8 @@ def tld(chat_id, t, show_none=True):
            return RussianStrings[t]
         elif LOCALE in ('uk') and t in UkrainianStrings:
             return UkrainianStrings[t]
+        elif LOCALE in ('ml') and t in MalayalamStrings:
+            return MalayalamStrings[t]
         else:
             if t in EnglishStrings:
                 return EnglishStrings[t]
@@ -39,6 +41,8 @@ def tld_help(chat_id, t):
             return RussianStrings[t]
         elif LOCALE in ('uk') and t in UkrainianStrings:
             return UkrainianStrings[t]
+        elif LOCALE in ('ml') and t in MalayalamStrings:
+            return MalayalamStrings[t]
         else:
             return False
     else:
